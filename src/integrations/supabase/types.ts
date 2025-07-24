@@ -14,7 +14,128 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      fluid_types: {
+        Row: {
+          color: string | null
+          created_at: string
+          hydration_factor: number | null
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          hydration_factor?: number | null
+          id?: string
+          name: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          hydration_factor?: number | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      hydration_logs: {
+        Row: {
+          amount_oz: number
+          created_at: string
+          date: string
+          fluid_type_id: string
+          id: string
+          logged_at: string
+          user_id: string
+        }
+        Insert: {
+          amount_oz: number
+          created_at?: string
+          date?: string
+          fluid_type_id: string
+          id?: string
+          logged_at?: string
+          user_id: string
+        }
+        Update: {
+          amount_oz?: number
+          created_at?: string
+          date?: string
+          fluid_type_id?: string
+          id?: string
+          logged_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hydration_logs_fluid_type_id_fkey"
+            columns: ["fluid_type_id"]
+            isOneToOne: false
+            referencedRelation: "fluid_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          activity_level: string | null
+          created_at: string
+          id: string
+          sex: string | null
+          updated_at: string
+          user_id: string
+          weight: number | null
+        }
+        Insert: {
+          activity_level?: string | null
+          created_at?: string
+          id?: string
+          sex?: string | null
+          updated_at?: string
+          user_id: string
+          weight?: number | null
+        }
+        Update: {
+          activity_level?: string | null
+          created_at?: string
+          id?: string
+          sex?: string | null
+          updated_at?: string
+          user_id?: string
+          weight?: number | null
+        }
+        Relationships: []
+      }
+      reminders: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          message: string | null
+          time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
