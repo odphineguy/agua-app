@@ -7,12 +7,13 @@ import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
+import { useTheme } from 'next-themes';
 
 const Settings = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState(true);
-  const [darkMode, setDarkMode] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -101,7 +102,7 @@ const Settings = () => {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center space-x-2">
-              {darkMode ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
+              {theme === 'dark' ? <Moon className="w-5 h-5" /> : <Sun className="w-5 h-5" />}
               <span>Appearance</span>
             </CardTitle>
             <CardDescription>
@@ -118,9 +119,8 @@ const Settings = () => {
               </div>
               <Switch
                 id="dark-mode"
-                checked={darkMode}
-                onCheckedChange={setDarkMode}
-                disabled
+                checked={theme === 'dark'}
+                onCheckedChange={(checked) => setTheme(checked ? 'dark' : 'light')}
               />
             </div>
           </CardContent>

@@ -105,7 +105,7 @@ export const useHydration = () => {
         .from('hydration_logs')
         .select(`
           amount_oz,
-          fluid_types (hydration_factor)
+          fluid_types!inner (hydration_factor)
         `)
         .eq('user_id', user.id)
         .eq('date', today);
