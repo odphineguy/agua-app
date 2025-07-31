@@ -71,7 +71,35 @@ const Profile = () => {
       }
 
       const file = event.target.files[0];
-      const fileExt = file.name.split('.').pop();
+      
+      // Security: File size validation (5MB max)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        throw new Error('File size must be less than 5MB.');
+      }
+      
+      // Security: File type validation
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('Only JPEG, PNG, and WebP images are allowed.');
+      }
+      
+      // Security: Additional file signature validation
+      const buffer = await file.arrayBuffer();
+      const uint8Array = new Uint8Array(buffer.slice(0, 4));
+      const signature = Array.from(uint8Array).map(b => b.toString(16).padStart(2, '0')).join('');
+      
+      const validSignatures = [
+        'ffd8ffe0', 'ffd8ffe1', 'ffd8ffe2', 'ffd8ffe3', 'ffd8ffe8', // JPEG
+        '89504e47', // PNG
+        '52494646', // WebP (RIFF)
+      ];
+      
+      if (!validSignatures.some(sig => signature.startsWith(sig.substring(0, 8)))) {
+        throw new Error('Invalid image file format detected.');
+      }
+
+      const fileExt = file.name.split('.').pop()?.toLowerCase();
       const filePath = `${user?.id}/avatar.${fileExt}`;
 
       // Upload file to Supabase Storage
@@ -110,12 +138,62 @@ const Profile = () => {
     e.preventDefault();
     if (!user) return;
 
+    // Security: Input validation
+    if (profile.first_name && (profile.first_name.length > 50 || !/^[a-zA-Z\s'-]+$/.test(profile.first_name))) {
+      toast({
+        title: "Invalid first name",
+        description: "First name must be less than 50 characters and contain only letters, spaces, hyphens, and apostrophes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (profile.last_name && (profile.last_name.length > 50 || !/^[a-zA-Z\s'-]+$/.test(profile.last_name))) {
+      toast({
+        title: "Invalid last name", 
+        description: "Last name must be less than 50 characters and contain only letters, spaces, hyphens, and apostrophes.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (profile.weight) {
+      const weight = parseFloat(profile.weight);
+      if (isNaN(weight) || weight < 50 || weight > 1000) {
+        toast({
+          title: "Invalid weight",
+          description: "Weight must be between 50 and 1000 lbs.",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+
+    if (profile.sex && !['male', 'female'].includes(profile.sex)) {
+      toast({
+        title: "Invalid selection",
+        description: "Please select a valid sex option.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const validActivityLevels = ['sedentary', 'light', 'moderate', 'active', 'very_active'];
+    if (profile.activity_level && !validActivityLevels.includes(profile.activity_level)) {
+      toast({
+        title: "Invalid selection",
+        description: "Please select a valid activity level.",
+        variant: "destructive", 
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const profileData = {
         user_id: user.id,
-        first_name: profile.first_name || null,
-        last_name: profile.last_name || null,
+        first_name: profile.first_name?.trim() || null,
+        last_name: profile.last_name?.trim() || null,
         weight: profile.weight ? parseFloat(profile.weight) : null,
         activity_level: profile.activity_level || null,
         sex: profile.sex || null,
@@ -196,7 +274,7 @@ const Profile = () => {
                     <input
                       type="file"
                       id="avatar"
-                      accept="image/*"
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
                       onChange={uploadAvatar}
                       disabled={uploading}
                       className="hidden"
@@ -247,13 +325,16 @@ const Profile = () => {
               {/* Weight */}
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight (lbs)</Label>
-                <Input
-                  id="weight"
-                  type="number"
-                  placeholder="150"
-                  value={profile.weight}
-                  onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
-                />
+                  <Input
+                    id="weight"
+                    type="number"
+                    placeholder="150"
+                    value={profile.weight}
+                    onChange={(e) => setProfile({ ...profile, weight: e.target.value })}
+                    min="50"
+                    max="1000"
+                    step="0.1"
+                  />
                 <p className="text-sm text-muted-foreground">
                   Used to calculate your baseline hydration needs
                 </p>

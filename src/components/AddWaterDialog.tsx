@@ -42,10 +42,22 @@ const AddWaterDialog = ({ open, onOpenChange }: AddWaterDialogProps) => {
     }
 
     const amountNum = parseFloat(amount);
-    if (amountNum <= 0 || amountNum > 64) {
+    // Security: Enhanced validation
+    if (isNaN(amountNum) || amountNum <= 0 || amountNum > 64) {
       toast({
         title: "Invalid amount",
-        description: "Please enter a valid amount between 1 and 64 oz.",
+        description: "Please enter a valid amount between 0.1 and 64 oz.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Security: Precision validation to prevent float precision exploits
+    const decimalPlaces = (amount.split('.')[1] || '').length;
+    if (decimalPlaces > 1) {
+      toast({
+        title: "Invalid precision",
+        description: "Amount can only have one decimal place.",
         variant: "destructive",
       });
       return;
