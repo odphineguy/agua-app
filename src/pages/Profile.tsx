@@ -7,8 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, User } from 'lucide-react';
+import { ArrowLeft, User, Camera, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
@@ -17,10 +18,14 @@ const Profile = () => {
   const navigate = useNavigate();
   
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [profile, setProfile] = useState({
+    first_name: '',
+    last_name: '',
     weight: '',
     activity_level: '',
-    sex: ''
+    sex: '',
+    avatar_url: ''
   });
 
   useEffect(() => {
@@ -33,7 +38,7 @@ const Profile = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('weight, activity_level, sex')
+        .select('first_name, last_name, weight, activity_level, sex, avatar_url')
         .eq('user_id', user?.id)
         .single();
 
@@ -43,13 +48,60 @@ const Profile = () => {
 
       if (data) {
         setProfile({
+          first_name: data.first_name || '',
+          last_name: data.last_name || '',
           weight: data.weight?.toString() || '',
           activity_level: data.activity_level || '',
-          sex: data.sex || ''
+          sex: data.sex || '',
+          avatar_url: data.avatar_url || ''
         });
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
+    }
+  };
+
+  const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    try {
+      setUploading(true);
+      
+      if (!event.target.files || event.target.files.length === 0) {
+        throw new Error('You must select an image to upload.');
+      }
+
+      const file = event.target.files[0];
+      const fileExt = file.name.split('.').pop();
+      const filePath = `${user?.id}/avatar.${fileExt}`;
+
+      // Upload file to Supabase Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile with new avatar URL
+      setProfile({ ...profile, avatar_url: publicUrl });
+
+      toast({
+        title: "Avatar uploaded",
+        description: "Your profile picture has been updated.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error uploading avatar",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -61,9 +113,12 @@ const Profile = () => {
     try {
       const profileData = {
         user_id: user.id,
+        first_name: profile.first_name || null,
+        last_name: profile.last_name || null,
         weight: profile.weight ? parseFloat(profile.weight) : null,
         activity_level: profile.activity_level || null,
         sex: profile.sex || null,
+        avatar_url: profile.avatar_url || null,
         updated_at: new Date().toISOString()
       };
 
@@ -101,9 +156,12 @@ const Profile = () => {
             <ArrowLeft className="w-4 h-4" />
           </Button>
           <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-10 h-10 bg-primary rounded-full">
-              <User className="w-6 h-6 text-primary-foreground" />
-            </div>
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={profile.avatar_url} />
+              <AvatarFallback>
+                <User className="w-6 h-6" />
+              </AvatarFallback>
+            </Avatar>
             <div>
               <h1 className="text-xl font-bold text-primary">Profile Setup</h1>
               <p className="text-sm text-muted-foreground">Personalize your hydration goals</p>
@@ -123,6 +181,68 @@ const Profile = () => {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Profile Picture */}
+              <div className="space-y-4">
+                <Label>Profile Picture</Label>
+                <div className="flex items-center space-x-4">
+                  <Avatar className="w-20 h-20">
+                    <AvatarImage src={profile.avatar_url} />
+                    <AvatarFallback className="text-lg">
+                      {profile.first_name ? profile.first_name[0] : <User className="w-8 h-8" />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <input
+                      type="file"
+                      id="avatar"
+                      accept="image/*"
+                      onChange={uploadAvatar}
+                      disabled={uploading}
+                      className="hidden"
+                    />
+                    <Label htmlFor="avatar" className="cursor-pointer">
+                      <Button type="button" variant="outline" size="sm" disabled={uploading} asChild>
+                        <span>
+                          {uploading ? (
+                            <>
+                              <Upload className="w-4 h-4 mr-2 animate-spin" />
+                              Uploading...
+                            </>
+                          ) : (
+                            <>
+                              <Camera className="w-4 h-4 mr-2" />
+                              Change Photo
+                            </>
+                          )}
+                        </span>
+                      </Button>
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              {/* Name Fields */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">First Name</Label>
+                  <Input
+                    id="first_name"
+                    placeholder="John"
+                    value={profile.first_name}
+                    onChange={(e) => setProfile({ ...profile, first_name: e.target.value })}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Last Name</Label>
+                  <Input
+                    id="last_name"
+                    placeholder="Doe"
+                    value={profile.last_name}
+                    onChange={(e) => setProfile({ ...profile, last_name: e.target.value })}
+                  />
+                </div>
+              </div>
+
               {/* Weight */}
               <div className="space-y-2">
                 <Label htmlFor="weight">Weight (lbs)</Label>

@@ -79,8 +79,11 @@ export type Database = {
       profiles: {
         Row: {
           activity_level: string | null
+          avatar_url: string | null
           created_at: string
+          first_name: string | null
           id: string
+          last_name: string | null
           sex: string | null
           updated_at: string
           user_id: string
@@ -88,8 +91,11 @@ export type Database = {
         }
         Insert: {
           activity_level?: string | null
+          avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           sex?: string | null
           updated_at?: string
           user_id: string
@@ -97,8 +103,11 @@ export type Database = {
         }
         Update: {
           activity_level?: string | null
+          avatar_url?: string | null
           created_at?: string
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           sex?: string | null
           updated_at?: string
           user_id?: string
