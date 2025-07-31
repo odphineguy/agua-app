@@ -6,6 +6,7 @@ import { Droplets, LogOut, Settings, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import AddWaterDialog from '@/components/AddWaterDialog';
+import Footer from '@/components/Footer';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -134,6 +135,8 @@ const Dashboard = () => {
         open={showAddWater} 
         onOpenChange={setShowAddWater} 
       />
+
+      <Footer />
     </div>
   );
 };

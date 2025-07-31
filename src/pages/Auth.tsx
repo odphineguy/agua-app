@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Navigate } from 'react-router-dom';
+import Footer from '@/components/Footer';
 import { Droplets, ArrowLeft } from 'lucide-react';
 
 const Auth = () => {
@@ -103,7 +104,8 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-background to-accent/10 p-4">
+    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary/10 via-background to-accent/10">
+      <div className="flex-1 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
@@ -231,6 +233,9 @@ const Auth = () => {
           )}
         </CardContent>
       </Card>
+      </div>
+      
+      <Footer />
     </div>
   );
 };

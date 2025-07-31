@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
+import Footer from '@/components/Footer';
 import { ArrowLeft, User, Camera, Upload } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -306,6 +307,8 @@ const Profile = () => {
           </CardContent>
         </Card>
       </main>
+
+      <Footer />
     </div>
   );
 };

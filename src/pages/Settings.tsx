@@ -6,6 +6,7 @@ import { ArrowLeft, Settings as SettingsIcon, User, LogOut, Bell, Moon, Sun } fr
 import { useNavigate } from 'react-router-dom';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import Footer from '@/components/Footer';
 import { useState } from 'react';
 import { useTheme } from 'next-themes';
 
@@ -146,6 +147,8 @@ const Settings = () => {
           </CardContent>
         </Card>
       </main>
+
+      <Footer />
     </div>
   );
 };
