@@ -1,12 +1,17 @@
 import { useAuth } from '@/hooks/useAuth';
+import { useHydration } from '@/hooks/useHydration';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplets, LogOut, Settings, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
+import AddWaterDialog from '@/components/AddWaterDialog';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const { todayProgress, weeklyStreak, loading } = useHydration();
   const navigate = useNavigate();
+  const [showAddWater, setShowAddWater] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -51,11 +56,18 @@ const Dashboard = () => {
               <CardDescription>Your daily hydration target</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-primary mb-2">64 oz</div>
-              <div className="w-full bg-muted rounded-full h-2">
-                <div className="bg-primary h-2 rounded-full" style={{ width: '0%' }}></div>
+              <div className="text-3xl font-bold text-primary mb-2">
+                {loading ? '...' : `${todayProgress.goal_oz} oz`}
               </div>
-              <p className="text-sm text-muted-foreground mt-2">0% complete</p>
+              <div className="w-full bg-muted rounded-full h-2 mb-2">
+                <div 
+                  className="bg-primary h-2 rounded-full transition-all duration-300" 
+                  style={{ width: `${todayProgress.percentage}%` }}
+                ></div>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {loading ? 'Loading...' : `${todayProgress.total_oz} oz / ${todayProgress.percentage}% complete`}
+              </p>
             </CardContent>
           </Card>
 
@@ -66,7 +78,11 @@ const Dashboard = () => {
               <CardDescription>Log your water intake</CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full" size="lg">
+              <Button 
+                className="w-full" 
+                size="lg"
+                onClick={() => setShowAddWater(true)}
+              >
                 <Plus className="w-4 h-4 mr-2" />
                 Add Water
               </Button>
@@ -80,8 +96,12 @@ const Dashboard = () => {
               <CardDescription>Your hydration streak</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent mb-2">0 days</div>
-              <p className="text-sm text-muted-foreground">Keep going!</p>
+              <div className="text-3xl font-bold text-accent mb-2">
+                {loading ? '...' : `${weeklyStreak} days`}
+              </div>
+              <p className="text-sm text-muted-foreground">
+                {weeklyStreak === 0 ? 'Start your streak today!' : 'Great job staying hydrated!'}
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -105,6 +125,11 @@ const Dashboard = () => {
           </CardContent>
         </Card>
       </main>
+
+      <AddWaterDialog 
+        open={showAddWater} 
+        onOpenChange={setShowAddWater} 
+      />
     </div>
   );
 };
