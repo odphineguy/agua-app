@@ -51,10 +51,10 @@ export const useHydration = () => {
     // Adjust for activity level
     const activityMultipliers = {
       'sedentary': 1.0,
-      'lightly_active': 1.1,
-      'moderately_active': 1.2,
-      'very_active': 1.3,
-      'extremely_active': 1.4
+      'light': 1.1,
+      'moderate': 1.2,
+      'active': 1.3,
+      'very_active': 1.4
     };
     
     const multiplier = activityMultipliers[activity_level as keyof typeof activityMultipliers] || 1.0;
