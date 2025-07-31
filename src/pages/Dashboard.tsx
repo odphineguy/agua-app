@@ -2,9 +2,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Droplets, LogOut, Settings, Plus } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5">
@@ -21,7 +23,7 @@ const Dashboard = () => {
             </div>
           </div>
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="sm">
+            <Button variant="ghost" size="sm" onClick={() => navigate('/settings')}>
               <Settings className="w-4 h-4" />
             </Button>
             <Button variant="ghost" size="sm" onClick={signOut}>
@@ -93,7 +95,11 @@ const Dashboard = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Button variant="outline" className="border-accent text-accent hover:bg-accent hover:text-accent-foreground">
+            <Button 
+              variant="outline" 
+              className="border-accent text-accent hover:bg-accent hover:text-accent-foreground"
+              onClick={() => navigate('/profile')}
+            >
               Set Up Profile
             </Button>
           </CardContent>
