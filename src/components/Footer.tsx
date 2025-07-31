@@ -1,3 +1,5 @@
+import React from 'react';
+
 const Footer = () => {
   return (
     <footer className="border-t bg-card/50 backdrop-blur-sm mt-auto">
