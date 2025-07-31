@@ -62,11 +62,15 @@ const Dashboard = () => {
               <div className="w-full bg-muted rounded-full h-2 mb-2">
                 <div 
                   className="bg-primary h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${todayProgress.percentage}%` }}
+                  style={{ width: `${Math.min(todayProgress.percentage, 100)}%` }}
                 ></div>
               </div>
               <p className="text-sm text-muted-foreground">
-                {loading ? 'Loading...' : `${todayProgress.total_oz} oz / ${todayProgress.percentage}% complete`}
+                {loading ? 'Loading...' : (
+                  todayProgress.goal_oz === 64 ? 
+                    `${todayProgress.total_oz} oz / Complete your profile for personalized goals` :
+                    `${todayProgress.total_oz} oz / ${Math.round(todayProgress.percentage)}% complete`
+                )}
               </p>
             </CardContent>
           </Card>

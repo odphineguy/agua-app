@@ -120,9 +120,9 @@ export const useHydration = () => {
       
       setTodayProgress({
         date: today,
-        total_oz: totalOz,
+        total_oz: Math.round(totalOz * 10) / 10, // Round to 1 decimal place
         goal_oz: dailyGoal,
-        percentage: Math.min(Math.round((totalOz / dailyGoal) * 100), 100)
+        percentage: dailyGoal > 0 ? Math.min(Math.round((totalOz / dailyGoal) * 100), 100) : 0
       });
     } catch (error) {
       console.error('Error fetching today progress:', error);
